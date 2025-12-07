@@ -1,0 +1,29 @@
+{% extends 'blogs/base.html' %}
+
+
+{% block content %}
+    <div class="container-fluid ">
+       
+        <div class="row">
+            <div class="col-lg-8">
+              <h1 class="mb-4">{{post_item.title}}</h1>
+              <p class="text-muted">posted on {{post_item.created_at |date:"F j, Y"}}</p>
+              <img  src="{{post_item.img_url}}"" class="img-fluid mb-4" alt="Blog Image">
+              <p>{{post_item.content}}</p>
+              
+            </div>
+            <div class="col-lg-4">
+              <div class="card mt-3">
+                <div class="card-body">
+                  <h5 class="card-title">Related Posts</h5>
+                  <ul class="list-unstyled">
+                  {% for related in related_posts %}
+                    <li><a href="{% url 'main:blog-detail' slug=related.slug %}">{{related.title}}</a></li>
+                  {% endfor%}
+                  </ul>
+                </div>
+              </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
