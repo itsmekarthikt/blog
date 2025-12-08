@@ -4,7 +4,7 @@ from django.urls import reverse
 import logging
 from .models import post,Aboutus
 from django.core.paginator import Paginator
-from .form import ContactForm
+from .form import ContactForm,RegistrationForm
 # Create your views here.
 # Static data for blog posts now moved to database via management command
 """post=[  
@@ -88,5 +88,30 @@ def contact(request):
 
 
 def about_us(request):
-    content=Aboutus.objects.first().contents
+    content=Aboutus.objects.first()
+
+    if content is None or content.contents is None:
+        content="About us content is not available at the moment. Please check back later."
+
+    else:
+        content=content.contents
+
+
     return render(request,'blogs/about.html',{'content':content})
+
+def register(request):
+
+    form=RegistrationForm()
+    if request.method=="POST":
+        form=RegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            print("User registered successfully")
+            
+        else:
+            print("Form is not valid")
+ 
+        
+    return render(request,'blogs/register.html',{'form':form})
+        
+
