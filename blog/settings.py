@@ -51,6 +51,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'blogs.middleware.RedirectAuthmiddleware',
+    'blogs.middleware.RestricUnauthendicatedMiddleware',
 ]
 
 ROOT_URLCONF = 'blog.urls'
@@ -151,3 +153,19 @@ LOGGING = {
         "level": "DEBUG",
     },
 }
+
+
+# Email configuration
+# For development, using console backend to print emails to the console
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# For actual email sending, configure SMTP settings as below
+Default_from_email = 'noreply@gmail.com'
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+EMAIL_PORT = 587  
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = '7e9919ad89bfa0'
+EMAIL_HOST_PASSWORD = '178a11f509f528'   
+
+# Make sure to allow "Less secure app access" in your email account settings if using Gmail.
+

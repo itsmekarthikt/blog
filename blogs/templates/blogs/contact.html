@@ -9,47 +9,23 @@
             <div class="d-flex gap-3 flex-column">
                 
                 <h3>Contact Form</h3>
+                <div class="">
+                    {% include 'blogs/includes/errors.html' %}  
 
-                <!--error display section--> 
-
-                {%for field in form %}
-                    {%if field.errors%}
-                        <div class="col-12">  
-                            <span class="fw-bold">{{field.label_tag}} </span> 
-                            {%for error in field.errors%}
-                                <span class="text-danger">{{error}}</span>
-                
-                            {%endfor%}
-
-                    {%endif%}
-
-                    </div>
-                {%endfor%}
-
-
-                <!--success display section--> 
-
-                {% if Success %}
-                    <div class="alert alert-success" role="alert">
-
-                        {{ Success }}
-                    </div>
-                {% endif %}
-
-
+                </div>
                 <form method="post" class="row g-3">
                     {% csrf_token %}
                     <div class="col-md-6">
                         <label for="name" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="name" value="{{name}}" name="name">
+                        <input type="text" class="form-control" id="name" value="{{form.name.value|default:""}}" name="name">
                     </div>
                     <div class="col-md-6">
                         <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" value="{{email}}" name="email" >
+                        <input type="email" class="form-control" id="email" value="{{form.email.value|default:""}}" name="email" >
                     </div>
                     <div class="col-12">
                         <label for="message" class="form-label">Message</label>
-                        <textarea class="form-control" id="message" value="{{message}}" name="message" rows="4"></textarea>
+                        <textarea class="form-control" id="message" name="message" rows="4">{{ form.message.value|default:"" }}</textarea>
                     </div>
                     <div class="col-12">
                         <button type="submit" class="btn btn-primary">Submit</button>

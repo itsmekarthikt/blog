@@ -2,13 +2,36 @@
     <header class="p-3 bg-dark text-white">
         <div class="row">
             <div class="col">
-               <a class="text-decoration-none text-light" href="http://127.0.0.1:8000/"><h3>Blog</h3></a> 
+               <a class="text-decoration-none text-light" href="{% url 'main:home'%}"><h3>Blog</h3></a> 
             </div>
             <div class="col">
+
+
                 <div class="d-flex justify-content-center gap-3">
-                    <a class="text-light text-decoration-none" href="">Home</a>
-                    <a class="text-light text-decoration-none" href="/about">About</a>
-                    <a class="text-light text-decoration-none" href="/contact">Contact</a>
+                    {% if request.path != '/' %}
+                    <a class="text-light text-decoration-none" href="{% url 'main:home'%}">Home</a>
+                    {% endif %}
+                    {% if request.path != '/about/' %}
+                    <a class="text-light text-decoration-none" href="{% url 'main:about'%}">About</a>
+                    {% endif %}
+                    {% if request.path != '/contact/' %}
+                    <a class="text-light text-decoration-none" href="{% url 'main:contact'%}">Contact</a>
+                    {% endif %}
+
+                    {% if user.is_authenticated %}
+                    
+                        {% if request.path != '/dashboard/' %}
+                            <a class="text-light text-decoration-none" href="{% url 'main:dashboard'%}">dashboard</a>
+                        {% endif %}
+                        <a class="text-light text-decoration-none" href="{% url 'main:logout'%}">logout</a>
+                    {% else %}
+                        {% if request.path != '/login/' %}
+                        <a class="text-light text-decoration-none" href="{% url 'main:login'%}">login</a>
+                        {% endif %}
+                        {% if request.path != '/register/' %}
+                        <a class="text-light text-decoration-none" href="{% url 'main:register'%}">register</a>
+                        {% endif %}
+                    {% endif %}
                 </div>
             </div>
         </div>

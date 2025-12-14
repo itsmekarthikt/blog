@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
+from django.contrib.auth.models import User
 
 
 
@@ -24,6 +25,7 @@ class post(models.Model):
     created_at=models.DateTimeField(auto_now_add=True)
     slug = models.SlugField(null=True, blank=True)
     category=models.ForeignKey(Category,on_delete=models.CASCADE)
+    user=models.ForeignKey(User,on_delete=models.CASCADE,null=True)
 
 
     def save(self, *args, **kwargs):
@@ -36,6 +38,10 @@ class post(models.Model):
 class Aboutus(models.Model):
     contents=models.TextField()
 
+class contactus(models.Model):
+    name=models.CharField(max_length=100)
+    email=models.EmailField()
+    message=models.TextField()
     
    
     
