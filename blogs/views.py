@@ -2,12 +2,12 @@ from django.shortcuts import render,redirect
 from django.http import HttpResponse,Http404
 from django.urls import reverse
 import logging
-from .models import post,Aboutus
+from .models import Category, post,Aboutus
 from django.core.paginator import Paginator
-from .form import ContactForm, Forgot_passwordForm,RegistrationForm,LoginForm,Reset_passwordForm
+from .form import ContactForm, Forgot_passwordForm,RegistrationForm,LoginForm,Reset_passwordForm, postForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login,logout
-from django.contrib.auth.models import User 
+from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
@@ -248,17 +248,33 @@ def reset_password(request, uidb64, token):
 
 
 def newpost(request):
-    if not request.user.is_authenticated:
-        return redirect('main:login')
+    categories = Category.objects.all()
 
     if request.method == "POST":
-        title = request.POST.get('title')
-        content = request.POST.get('content')
-        category = request.POST.get('category')
+        title = request.POST.get("title")
+        content = request.POST.get("content")
+        category = request.POST.get("category")
 
-        new_post = post(title=title, content=content, category=category, user=request.user)
-        new_post.save()
-        messages.success(request, "New post created successfully.")
-        return redirect('main:dashboard')
+      
 
-    return render(request, 'blogs/newpost.html')
+        # save using ModelForm
+        form = postForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.user = request.user
+            post.save()
+            messages.success(request, "Post created successfully.")
+            form = postForm()
+            
+
+        return render(request, "blogs/newpost.html", {
+            "form": form,
+            "categories": categories
+        })
+
+    # GET request
+    form = postForm()
+    return render(request, "blogs/newpost.html", {
+        "form": form,
+        "categories": categories
+    })

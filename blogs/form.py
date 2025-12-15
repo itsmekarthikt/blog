@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User  
-from .models import contactus
+from .models import contactus,Category, post
 from django.contrib.auth import authenticate
 
 
@@ -82,3 +82,21 @@ class Reset_passwordForm(forms.Form):
             raise forms.ValidationError(
                 "New Password and Confirm Password do not match"
             )
+        
+
+class postForm(forms.ModelForm):
+    title=forms.CharField(max_length=100, min_length=2, label='Title', required=True)
+    content=forms.CharField(min_length=2, label='Content', required=True)
+    category=forms.ModelChoiceField( label='Category', required=True, queryset=Category.objects.all())
+
+    class Meta:
+        model = post
+        fields = ['title', 'content', 'category']
+
+        def clean_title(self):
+            cleaned_data = super().clean()
+            title = cleaned_data.get("title")
+
+            if post.objects.filter(title=title).exists():
+                raise forms.ValidationError("A post with this title already exists. Please choose a different title.")
+            return title
