@@ -84,19 +84,42 @@ class Reset_passwordForm(forms.Form):
             )
         
 
+
+
+
 class postForm(forms.ModelForm):
-    title=forms.CharField(max_length=100, min_length=2, label='Title', required=True)
-    content=forms.CharField(min_length=2, label='Content', required=True)
-    category=forms.ModelChoiceField( label='Category', required=True, queryset=Category.objects.all())
+    title = forms.CharField(max_length=100, min_length=2, label='Title', required=True)
+    content = forms.CharField(min_length=2, label='Content', required=True)
+    category = forms.ModelChoiceField(label='Category', required=True, queryset=Category.objects.all())
+    img_url = forms.ImageField(label='Image', required=False)
 
     class Meta:
         model = post
-        fields = ['title', 'content', 'category']
+        fields = ['title', 'content', 'category', 'img_url']
 
-        def clean_title(self):
-            cleaned_data = super().clean()
-            title = cleaned_data.get("title")
+    def clean_title(self):
+        title = self.cleaned_data.get("title")
+        if post.objects.filter(title=title).exists():
+            raise forms.ValidationError("A post with this title already exists.")
+        return title
 
-            if post.objects.filter(title=title).exists():
-                raise forms.ValidationError("A post with this title already exists. Please choose a different title.")
-            return title
+    def save(self, commit=True):
+        post_instance = super().save(commit=False)
+
+        img = self.cleaned_data.get("img_url")
+        if img:
+            post_instance.img_url = img
+        else:
+            post_instance.img_url = "https://upload.wikimedia.org/wikipedia/commons/a/ac/800/400px-No_image_available.svg.png"
+
+        if commit:
+            post_instance.save()
+
+        return post_instance
+
+            
+
+          
+            
+
+           

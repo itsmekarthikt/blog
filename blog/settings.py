@@ -169,3 +169,7 @@ EMAIL_HOST_PASSWORD = '178a11f509f528'
 
 # Make sure to allow "Less secure app access" in your email account settings if using Gmail.
 
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'blogs', 'media')
+

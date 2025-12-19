@@ -18,7 +18,7 @@
                   <h5 class="card-title">Related Posts</h5>
                   <ul class="list-unstyled">
                   {% for related in related_posts %}
-                    <li><a href="{% url 'main:blog-detail' slug=related.slug %}">{{related.title}}</a></li>
+                    <li><a href="{% url 'main:detail' slug=related.slug %}">{{related.title}}</a></li>
                   {% endfor%}
                   </ul>
                 </div>

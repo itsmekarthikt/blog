@@ -5,42 +5,41 @@
 
 <div class="container mt-5">
   <h2 class="mb-4">New Post</h2>
-<div class="">
-    {%include 'blogs/includes/errors.html' %}
 
-  <form method="POST" action="{% url 'main:newpost' %}">
+  {% include 'blogs/includes/errors.html' %}
+
+  <form method="POST" enctype="multipart/form-data" action="{% url 'main:newpost' %}">
     {% csrf_token %}
-    
+
     <div class="mb-3">
       <label for="title" class="form-label">Title</label>
-      <input type="text" class="form-control" id="title" name="title" placeholder="Enter post title" value="{{ form.title.value|default:'' }}">
+      <input type="text" class="form-control" id="title" name="title"
+             value="{{ form.title.value|default:'' }}" placeholder="Enter post title">
+    </div>
+
+    <div class="mb-3">
+      <label for="img_url" class="form-label">Image</label>
+      <input type="file" class="form-control-file" id="img_url" name="img_url">
     </div>
 
     <div class="mb-3">
       <label for="content" class="form-label">Content</label>
-      <textarea class="form-control" id="content" name="content" rows="5" value="{{form.content.valu|default:''}}" placeholder="Write your content here..."></textarea>
+      <textarea class="form-control" id="content" name="content" rows="5"
+                placeholder="Write your content here...">{{ form.content.value|default:'' }}</textarea>
     </div>
 
-
-
-    
     <div class="mb-3">
-    <label for="category" class="form-label">Category</label>
-    <select class="form-select" id="category" name="category">
+      <label for="category" class="form-label">Category</label>
+      <select class="form-select" id="category" name="category">
         <option selected disabled>Select</option>
-        {% if categories%}
         {% for category in categories %}
-        <option value="{{ category.id }}">{{ category.name }}</option>
+          <option value="{{ category.id }}">{{ category.name }}</option>
         {% endfor %}
-        {% endif %}
-    </select>
-    </div>
+      </select>
+ 
 
     <button type="submit" class="btn btn-primary">Submit</button>
   </form>
-</div>
+<div/>
 
 {% endblock %}
-
-
-  

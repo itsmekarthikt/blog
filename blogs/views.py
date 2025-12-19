@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from django.shortcuts import render,redirect
 from django.http import HttpResponse,Http404
 from django.urls import reverse
@@ -258,13 +259,13 @@ def newpost(request):
       
 
         # save using ModelForm
-        form = postForm(request.POST)
+        form = postForm(request.POST,request.FILES)
         if form.is_valid():
             post = form.save(commit=False)
             post.user = request.user
             post.save()
-            messages.success(request, "Post created successfully.")
-            form = postForm()
+
+         
             
 
         return render(request, "blogs/newpost.html", {
@@ -277,4 +278,26 @@ def newpost(request):
     return render(request, "blogs/newpost.html", {
         "form": form,
         "categories": categories
+    })
+
+
+
+@login_required
+def editpost(request, post_id):
+    # fetch the post object
+    post_obj = get_object_or_404(post, pk=post_id)
+    categories = Category.objects.all()
+
+    if request.method == "POST":
+        form = postForm(request.POST, request.FILES, instance=post_obj)
+        if form.is_valid():
+            form.save()
+            return redirect('main:dashboard')  # redirect back to dashboard after saving
+    else:
+        form = postForm(instance=post_obj)
+
+    return render(request, 'blogs/editpost.html', {
+        'form': form,
+        'post': post_obj,
+        'categories': categories
     })

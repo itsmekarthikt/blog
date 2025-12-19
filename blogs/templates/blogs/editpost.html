@@ -1,0 +1,51 @@
+{% extends 'blogs/base.html' %}
+{% block content %}
+
+<div class="container mt-5">
+  <h2 class="mb-4">Edit Post</h2>
+
+  {% include 'blogs/includes/errors.html' %}
+
+  <form method="POST" enctype="multipart/form-data" action="{% url 'main:editpost' post.id %}">
+    {% csrf_token %}
+
+    <!-- Title -->
+    <div class="mb-3">
+      <label for="id_title" class="form-label">Title</label>
+      {{ form.title }}
+    </div>
+
+    <!-- Image -->
+<!-- Image Upload -->
+<div class="mb-3">
+  <label for="id_img_url" class="form-label">Change Image</label>
+  {{ form.img_url }}
+
+  {% if post.formated_img %}
+    <div class="mt-2">
+      <img src="{{ post.formated_img }}" alt="{{ post.title }}"
+           class="img-thumbnail"
+           style="max-width: 120px; height: auto;">
+    </div>
+  {% endif %}
+</div>
+
+    <!-- Content as textarea -->
+    <div class="mb-3">
+      <label for="id_content" class="form-label">Content</label>
+      <textarea name="content" id="id_content" class="form-control" rows="6">{{ form.content.value }}</textarea>
+    </div>
+
+    <!-- Category -->
+    <div class="mb-3">
+      <label for="id_category" class="form-label">Category</label>
+      {{ form.category }}
+    </div>
+
+    <!-- Submit -->
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a href="{% url 'main:dashboard' %}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+
+{% endblock %}
