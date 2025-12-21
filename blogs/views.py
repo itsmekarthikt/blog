@@ -32,7 +32,7 @@ from django.contrib.auth.decorators import login_required
 def home(request):
     blog_title="Latest posts"
     # getting all posts from database
-    all_posts=post.objects.all()
+    all_posts=post.objects.filter(is_published=True)
 
     #pagination styles
     paginater=Paginator(all_posts,5)
@@ -41,7 +41,7 @@ def home(request):
 
     return (render(request, 'blogs/home.html',{'blog_title':blog_title,'paginated_posts':pagination}))
 
-
+@login_required
 def details(request, slug):
 #    to get data from static list now moved to database
 #    post_item=next((item for item in post if item["id"] == post_id), None)
@@ -168,7 +168,7 @@ def dashboard_view(request):
 
     return render(request, 'blogs/dashboard.html',{'form':form,'title':blog_title,'paginated_posts':pagination})
 
-
+@login_required
 def logout_view(request):
     logout(request)
     return redirect('main:home')
@@ -247,7 +247,7 @@ def reset_password(request, uidb64, token):
             return render(request, 'blogs/reset_password.html', {'form': form})
     return render(request, 'blogs/reset_password.html')
 
-
+@login_required
 def newpost(request):
     categories = Category.objects.all()
 
@@ -264,6 +264,8 @@ def newpost(request):
             post = form.save(commit=False)
             post.user = request.user
             post.save()
+            messages.success(request, "Post created successfully.")
+            return redirect('main:dashboard')  # redirect back to dashboard after saving
 
          
             
@@ -292,6 +294,7 @@ def editpost(request, post_id):
         form = postForm(request.POST, request.FILES, instance=post_obj)
         if form.is_valid():
             form.save()
+            messages.success(request, "Post updated successfully.")
             return redirect('main:dashboard')  # redirect back to dashboard after saving
     else:
         form = postForm(instance=post_obj)
@@ -301,3 +304,26 @@ def editpost(request, post_id):
         'post': post_obj,
         'categories': categories
     })
+
+
+@login_required
+def deletepost(request, post_id):
+    post_obj = get_object_or_404(post, pk=post_id)
+    if post_obj:
+        post_obj.delete()
+        messages.success(request, "Post deleted successfully.")
+        return redirect('main:dashboard')
+    return render(request, 'blogs/dashboard.html', {'post': post_obj})
+
+
+@login_required
+def publish_post(request, post_id):
+    post_obj = get_object_or_404(post, pk=post_id)
+    if post_obj:
+        post_obj.is_published = True
+        post_obj.save()
+        messages.success(request, "Post published successfully.")
+        return redirect('main:dashboard')
+    return render(request, 'blogs/dashboard.html', {'post': post_obj})
+
+    

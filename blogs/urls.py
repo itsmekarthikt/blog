@@ -17,6 +17,8 @@ urlpatterns=[
     path('reset_password/<uidb64>/<token>/', views.reset_password, name='reset_password'),
     path('newpost/', views.newpost, name='newpost'),
     path('editpost/<int:post_id>/', views.editpost, name='editpost'),
+    path('deletepost/<int:post_id>/', views.deletepost, name='deletepost'),
+    path('publish/<int:post_id>/', views.publish_post, name='publish_post'),
 
 
 

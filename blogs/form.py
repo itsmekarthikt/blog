@@ -99,10 +99,13 @@ class postForm(forms.ModelForm):
 
     def clean_title(self):
         title = self.cleaned_data.get("title")
-        if post.objects.filter(title=title).exists():
+        # Exclude the current instance when checking uniqueness
+        qs = post.objects.filter(title=title).exclude(pk=self.instance.pk)
+        if qs.exists():
             raise forms.ValidationError("A post with this title already exists.")
         return title
-
+    
+    
     def save(self, commit=True):
         post_instance = super().save(commit=False)
 
