@@ -9,6 +9,7 @@
             </div>
             
             <div class="col-3">
+                {%include 'blogs/includes/errors.html' %}
                 <div class="input-group">
                     <input type="text" class="form-control" placeholder="Search..." aria-label="Search">
                     <button class="btn btn-outline-light btn-primary " type="button" id="button-search">
@@ -18,6 +19,7 @@
             </div>
         </div>
         <div class="row m-3">
+            
             {%if  paginated_posts %}
                 {%for post in paginated_posts%}
                 <div class="col-4 mb-4">

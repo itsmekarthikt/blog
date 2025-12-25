@@ -11,8 +11,11 @@
       <div class="col-md-6 text-end">
         <h5 class="fw-semibold">Your Groups:</h5>
         <ul class="list-inline">
-          <li class="list-inline-item">[GROUP NAME]</li>
+          {% for group in user.groups.all %}
+          <li class="list-inline-item">{{ group.name }}</li>
+          {% empty %}
           <li class="list-inline-item text-muted">You are not a member of any groups.</li>
+          {% endfor %}
         </ul>
       </div>
     </div>
@@ -34,10 +37,12 @@
     <!-- Title + New Post -->
     <div class="text-center mb-5">
       <h2 class="fw-bold">{{ title }}</h2>
+      {% if perms.blogs.add_post %}
       <a href="{% url 'main:newpost' %}" class="btn btn-success btn-lg shadow-sm mt-2">
         ➕ Create New Post
       </a>
     </div>
+    {% endif %}
 
     <!-- Blog Cards -->
     <div class="row g-4">
@@ -59,15 +64,24 @@
               <!-- Action Bar -->
               <div class="mt-auto d-flex justify-content-between align-items-center">
                 <a href="{% url 'main:detail' slug=post.slug %}" class="btn btn-outline-primary btn-sm">Read More</a>
+
+                {% if perms.blogs.change_post %}
                 <div class="btn-group">
                   <a href="{% url 'main:editpost' post.id %}" class="btn btn-warning btn-sm">✏️ Edit</a>
-                  
+                {% endif %}
+
+
+                {%if perms.blogs.delete_post%}
                   <button onclick="confirmbeforedelete('{% url 'main:deletepost' post.id %}')" 
                       class="btn btn-danger btn-sm">🗑 Delete
                   </button>
-                  {% if not post.is_published %}
+                {% endif %}
+                
+                {% if not post.is_published %}
+                  {%if perms.blogs.can_publish%}
                   <a href="{% url 'main:publish_post' post.id %}" class="btn btn-success btn-sm">publish</a>
                   {% endif %}
+                {% endif %}
                  
 
                </div>

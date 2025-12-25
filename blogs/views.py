@@ -1,3 +1,5 @@
+from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render,redirect
 from django.http import HttpResponse,Http404
@@ -14,7 +16,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required,permission_required
 # Create your views here.
 # Static data for blog posts now moved to database via management command
 """post=[  
@@ -49,15 +51,24 @@ def details(request, slug):
 #    Logging the retrieved post item for debugging
 #    logger=logging.getLogger("Testing")s
 #    logger.debug(f"Post item retrieved: {post_item}")
+
+    if not request.user.has_perm('blogs.view_post'):
+        messages.error(request, "You do not have permission to view this post.")
+        return redirect('main:home')
+    
     try:
-    #   Fetching the post item from the database
-        post_item=post.objects.get(slug=slug)
-        related_Post=post.objects.filter(category=post_item.category).exclude(pk=post_item.id)[:3]
+            #   Fetching the post item from the database
+            post_item=post.objects.get(slug=slug)
+            related_Post=post.objects.filter(category=post_item.category).exclude(pk=post_item.id)[:3]
+
 
     except post.DoesNotExist:
-        return HttpResponse("Post not found, try with proper post id", status=404)
-    
+            return HttpResponse("Post not found, try with proper post id", status=404)
+        
     return (render(request, 'blogs/detail.html',{'post_item':post_item,'related_posts':related_Post}))
+        
+    
+
 
 
 
@@ -117,8 +128,12 @@ def register(request):
             password=form.cleaned_data['password']
             User.set_password(password)
             User.save()
+            # create a group for new registered users
+            user_group, _ = Group.objects.get_or_create(name='reader')
+            user_group.user_set.add(User)
+
             success=messages.success(request, "Registration successful. You can now log in.")
-            return redirect('main:blog-login')
+            return redirect('main:login')
             
             
         else:
@@ -156,17 +171,19 @@ def login_view(request):
     return render(request, 'blogs/login.html', {'form': form})
 
 @login_required
+
 def dashboard_view(request):
     blog_title="My Posts"
     form = LoginForm(request.POST)
     user_posts=post.objects.filter(user=request.user)
+    user=request.user
     
     #pagination styles
     paginater=Paginator(user_posts,5)
     page_number=request.GET.get('page')
     pagination=paginater.get_page(page_number)
 
-    return render(request, 'blogs/dashboard.html',{'form':form,'title':blog_title,'paginated_posts':pagination})
+    return render(request, 'blogs/dashboard.html',{'form':form,'title':blog_title,'paginated_posts':pagination,})
 
 @login_required
 def logout_view(request):
@@ -248,6 +265,7 @@ def reset_password(request, uidb64, token):
     return render(request, 'blogs/reset_password.html')
 
 @login_required
+@permission_required('blogs.add_post')
 def newpost(request):
     categories = Category.objects.all()
 
@@ -285,6 +303,7 @@ def newpost(request):
 
 
 @login_required
+@permission_required('blogs.change_post')
 def editpost(request, post_id):
     # fetch the post object
     post_obj = get_object_or_404(post, pk=post_id)
@@ -307,6 +326,7 @@ def editpost(request, post_id):
 
 
 @login_required
+@permission_required('blogs.delete_post')
 def deletepost(request, post_id):
     post_obj = get_object_or_404(post, pk=post_id)
     if post_obj:
