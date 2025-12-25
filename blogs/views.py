@@ -43,7 +43,6 @@ def home(request):
 
     return (render(request, 'blogs/home.html',{'blog_title':blog_title,'paginated_posts':pagination}))
 
-@login_required
 def details(request, slug):
 #    to get data from static list now moved to database
 #    post_item=next((item for item in post if item["id"] == post_id), None)
@@ -53,7 +52,7 @@ def details(request, slug):
 #    logger.debug(f"Post item retrieved: {post_item}")
 
     if not request.user.has_perm('blogs.view_post'):
-        messages.error(request, "You do not have permission to view this post.")
+        messages.error(request, "You do not have permission to view this post, Need to rgister as a User.")
         return redirect('main:home')
     
     try:
