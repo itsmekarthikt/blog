@@ -12,6 +12,12 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 
+# expire session after 30 minutes of inactivity
+# 5 minutes in seconds
+SESSION_COOKIE_AGE = 60  
+# optional: expire when browser closes
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 

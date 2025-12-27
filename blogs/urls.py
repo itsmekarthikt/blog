@@ -1,5 +1,11 @@
 from django.urls import path
 from . import views
+from django.urls import path
+from django.contrib.auth import views as auth_views
+
+
+
+
 
 
 app_name='main'
@@ -19,6 +25,7 @@ urlpatterns=[
     path('editpost/<int:post_id>/', views.editpost, name='editpost'),
     path('deletepost/<int:post_id>/', views.deletepost, name='deletepost'),
     path('publish/<int:post_id>/', views.publish_post, name='publish_post'),
+   
 
 
 
