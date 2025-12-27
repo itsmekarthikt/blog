@@ -14,7 +14,7 @@ from pathlib import Path
 
 # expire session after 30 minutes of inactivity
 # 5 minutes in seconds
-SESSION_COOKIE_AGE = 60  
+SESSION_COOKIE_AGE = 300 
 # optional: expire when browser closes
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  
 
