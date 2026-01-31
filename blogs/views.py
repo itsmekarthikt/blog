@@ -17,6 +17,14 @@ from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
 
 from django.contrib.auth.decorators import login_required,permission_required
+
+from django.http import JsonResponse
+from .ratelimit import contact_rate_limit
+from .utills import rate_limit_response
+
+
+
+
 # Create your views here.
 # Static data for blog posts now moved to database via management command
 """post=[  
@@ -31,12 +39,16 @@ from django.contrib.auth.decorators import login_required,permission_required
         {"id":8,'title':'My first post 8','content':'This is my eight blog post content'},]"""
 
 
+
+
+
 def home(request):
     blog_title="Latest posts"
-    # getting all posts from database
+
+# getting all posts from database
     all_posts=post.objects.filter(is_published=True)
 
-    #pagination styles
+#pagination styles
     paginater=Paginator(all_posts,5)
     page_number=request.GET.get('page')
     pagination=paginater.get_page(page_number)
@@ -56,7 +68,7 @@ def details(request, slug):
         return redirect('main:home')
     
     try:
-            #   Fetching the post item from the database
+#   Fetching the post item from the database
             post_item=post.objects.get(slug=slug)
             related_Post=post.objects.filter(category=post_item.category).exclude(pk=post_item.id)[:3]
 
@@ -68,12 +80,19 @@ def details(request, slug):
         
     
 
-
-
-
-
-
+@contact_rate_limit["decorator"]
 def contact(request):
+
+
+    if getattr(request, 'limited', False):
+        response = JsonResponse({
+            "error": "rate_limit_exceeded",
+            "message": "You have exceeded the limit of 5 requests per minute. Please wait 60 seconds before retrying.",
+            "retry_after_seconds": 60
+        }, status=429)
+        response["Retry-After"] = 60
+        return response
+
     if request.method=="POST":
 
                 
@@ -96,8 +115,16 @@ def contact(request):
             logger.debug("Form is not valid")
 
 
-        # FORM FIELD IS SENT TO THE TEMPLATE TO RENDER ERRORS IF ANY
+# if user exceed rate limit then responce will thrown
+     
+
+
+# FORM FIELD IS SENT TO THE TEMPLATE TO RENDER ERRORS IF ANY
         return render(request,'blogs/contact.html',{'form':form })
+    
+
+
+
     
 
     return render(request,'blogs/contact.html')
@@ -127,7 +154,7 @@ def register(request):
             password=form.cleaned_data['password']
             User.set_password(password)
             User.save()
-            # create a group for new registered users
+# create a group for new registered users
             user_group, _ = Group.objects.get_or_create(name='reader')
             user_group.user_set.add(User)
 
@@ -154,19 +181,23 @@ def login_view(request):
             password = form.cleaned_data['password']
             user = authenticate(request, username=username, password=password)
 
+#Create a session
+            if user:
+                login(request,user)  
+
             if user is not None:
                 login(request, user)
                 return redirect('main:dashboard')
             else:
-                # Authentication failed
+# Authentication failed
                 messages.error(request, "Invalid username or password.")
 
 
-        # Always return form on POST
+# Always return form on POST
         
         return render(request, 'blogs/login.html', {'form': form})
 
-    # GET request
+# GET request
     return render(request, 'blogs/login.html', {'form': form})
 
 @login_required
@@ -177,7 +208,7 @@ def dashboard_view(request):
     user_posts=post.objects.filter(user=request.user)
     user=request.user
     
-    #pagination styles
+#pagination styles
     paginater=Paginator(user_posts,5)
     page_number=request.GET.get('page')
     pagination=paginater.get_page(page_number)
@@ -186,6 +217,7 @@ def dashboard_view(request):
 
 @login_required
 def logout_view(request):
+# clear the session
     logout(request)
     return redirect('main:home')
 
@@ -204,7 +236,7 @@ def forgot_password(request):
             user_exists = User.objects.filter(email=email).first()
 
 
-            #before sent email need to create token and link
+#before sent email need to create token and link
             if user_exists:
                 token=default_token_generator.make_token(user_exists)
                 uid= urlsafe_base64_encode(force_bytes(user_exists.pk))
